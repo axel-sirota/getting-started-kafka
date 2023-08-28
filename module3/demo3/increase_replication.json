@@ -1,0 +1,7 @@
+{"version":1,
+  "partitions":[
+    {"topic":"myorders","partition":0,"replicas":[1,2]},
+    {"topic":"myorders","partition":1,"replicas":[1,2]},
+    {"topic":"myorders","partition":2,"replicas":[2]}
+  ]
+}
