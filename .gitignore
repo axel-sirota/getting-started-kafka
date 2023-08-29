@@ -31,3 +31,5 @@ kafka-client.iml
 **/target/*
 **/.idea
 **/*.iml
+**/file-log.txt
+**/com/globomantics/model
