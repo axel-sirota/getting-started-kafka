@@ -1,0 +1,162 @@
+---
+version: '3'
+services:
+  zookeeper-1:
+    image: confluentinc/cp-zookeeper:7.4.1
+    hostname: zookeeper-1
+    container_name: zookeeper-1
+    volumes:
+      - ./zookeeper-1_data:/var/lib/zookeeper/data
+      - ./zookeeper-1_log:/var/lib/zookeeper/log
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zookeeper-1:2888:3888;2181 server.2=zookeeper-2:2888:3888;2181 server.3=zookeeper-3:2888:3888;2181
+
+  zookeeper-2:
+    image: confluentinc/cp-zookeeper:7.4.1
+    hostname: zookeeper-2
+    container_name: zookeeper-2
+    volumes:
+      - ./zookeeper-2_data:/var/lib/zookeeper/data
+      - ./zookeeper-2_log:/var/lib/zookeeper/log
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zookeeper-1:2888:3888;2181 server.2=zookeeper-2:2888:3888;2181 server.3=zookeeper-3:2888:3888;2181
+
+  zookeeper-3:
+    image: confluentinc/cp-zookeeper:7.4.1
+    hostname: zookeeper-3
+    container_name: zookeeper-3
+    volumes:
+      - ./zookeeper-3_data:/var/lib/zookeeper/data
+      - ./zookeeper-3_log:/var/lib/zookeeper/log
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zookeeper-1:2888:3888;2181 server.2=zookeeper-2:2888:3888;2181 server.3=zookeeper-3:2888:3888;2181
+
+
+  broker-1:
+    image: confluentinc/cp-kafka:7.4.1
+    hostname: broker-1
+    container_name: broker-1
+    volumes:
+      - ./broker-1-data:/var/lib/kafka/data
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    ports:
+      - 9092:9092
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,INTERNAL://broker-1:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: HOST:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_SNAPSHOT_TRUST_EMPTY: true
+
+  broker-2:
+    image: confluentinc/cp-kafka:7.4.1
+    hostname: broker-2
+    container_name: broker-2
+    volumes:
+      - ./broker-2-data:/var/lib/kafka/data
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+      - broker-1
+    ports:
+      - 9093:9093
+      - 29093:29093
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9093,INTERNAL://broker-2:29093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: HOST:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_SNAPSHOT_TRUST_EMPTY: true
+
+  broker-3:
+    image: confluentinc/cp-kafka:7.4.1
+    hostname: broker-3
+    container_name: broker-3
+    volumes:
+      - ./broker-3-data:/var/lib/kafka/data
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+      - broker-1
+      - broker-2
+    ports:
+      - 9094:9094
+      - 29094:29094
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9094,INTERNAL://broker-3:29094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: HOST:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_SNAPSHOT_TRUST_EMPTY: true
+
+
+  rest-proxy:
+    image: confluentinc/cp-kafka-rest:7.4.1
+    ports:
+      - "8082:8082"
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+      - broker-1
+      - broker-2
+      - broker-3
+    hostname: rest-proxy
+    container_name: rest-proxy
+    environment:
+      KAFKA_REST_HOST_NAME: rest-proxy
+      KAFKA_REST_BOOTSTRAP_SERVERS: 'broker-1:29092,broker-2:29093,broker-3:29094'
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.4.1
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - rest-proxy
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker-1:29092,broker-2:29093,broker-3:29094'
+
+  ksqldb-server:
+    image: confluentinc/cp-ksqldb-server:7.4.1
+    hostname: ksqldb-server
+    container_name: ksqldb-server
+    depends_on:
+      - schema-registry
+    ports:
+      - "8088:8088"
+    environment:
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_BOOTSTRAP_SERVERS: broker-1:29092,broker-2:29093,broker-3:29094
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+
+  ksqldb-cli:
+    image: confluentinc/cp-ksqldb-cli:7.4.1
+    container_name: ksqldb-cli
+    hostname: ksqldb-cli
+    depends_on:
+      - ksqldb-server
+    entrypoint: /bin/sh
+    tty: true

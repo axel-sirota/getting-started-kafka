@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.com.globomantics</groupId>
-    <artifactId>kafka-clients-security-1</artifactId>
+    <artifactId>kafka-clients-security-2</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>kafka-clients-security-1</name>
+    <name>kafka-clients-security-2</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
 
