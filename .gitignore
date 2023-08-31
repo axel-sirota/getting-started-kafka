@@ -33,3 +33,7 @@ kafka-client.iml
 **/*.iml
 **/file-log.txt
 **/com/globomantics/model
+**/security/*.jks
+**/security/ca-cert
+**/security/ca-key
+*.answer
