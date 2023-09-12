@@ -27,11 +27,7 @@ public class BasicSSLConsumer {
 
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
 
-        props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, "/Users/bogdan/pluralsight/securing-kafka-cluster/m4/security/keystore/consumer.keystore.jks"); // Replace with the absolute path on your machine
-        props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, "password");
-        props.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, "password");
-
-        props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, "/Users/bogdan/pluralsight/securing-kafka-cluster/m4/security/truststore/consumer.truststore.jks"); // Replace with the absolute path on your machine
+        props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, "/Users/axelsirota/repos/getting-started-kafka/module8/demo3/security/truststore/consumer.truststore.jks"); // Replace with the absolute path on your machine
         props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "password");
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);

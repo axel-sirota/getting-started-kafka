@@ -23,10 +23,6 @@ public class BasicSSLProducer {
 
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
 
-//        props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, "/Users/axelsirota/Downloads/securing-kafka-cluster/04/demos/after/security/keystore/producer.keystore.jks"); // Replace with the absolute path on your machine
-//        props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, "password");
-//        props.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, "password");
-
         props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, "/Users/axelsirota/repos/getting-started-kafka/module8/demo3/security/truststore/producer.truststore.jks"); // Replace with the absolute path on your machine
         props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "password");
 
